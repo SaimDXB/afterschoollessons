@@ -1,5 +1,13 @@
 # afterschoollessons
 
+## Link for github repostory:
+
+https://github.com/SaimDXB/afterschoollessons
+
+## Link for github apps:
+
+https://saimdxb.github.io/afterschoollessons/
+
 ## Project setup
 ```
 npm install
