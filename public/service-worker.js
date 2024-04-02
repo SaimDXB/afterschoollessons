@@ -1,21 +1,43 @@
-var cacheName = 'petstore-v1';
-var cacheFiles = [
+let deferredPrompt;
+
+self.addEventListener('beforeinstallprompt', (e) => {
+    // Stash the event so it can be triggered later
+    deferredPrompt = e;
+    // Update UI to notify the user they can add to home screen
+    showInstallPromotion();
+});
+
+function showInstallPromotion() {
+    // Emit a custom event to notify the UI
+    self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+            client.postMessage({
+                type: 'showInstallButton'
+            });
+        });
+    });
+}
+
+const cacheName = 'AfterSchoolLessons-v1';
+const cacheFiles = [
     'index.html',
     'server.js',
+    'App.vue',
+    'Lesson.vue',
+    'Checkout.vue',
+    'main.js',
     'CSS/stylesheet.css',
-    'Images/art&craft.jpg',
-    'Images/athlon.png',
-    'Images/basketball.jpg',
-    'Images/boxer.jpg',
-    'Images/cricket.jpg',
-    'Images/cybersecurity.jpg',
-    'Images/football.jpg',
-    'Images/karate.jpg',
-    'Images/programming.jpg',
-    'Images/swimming.jpg',
-    'Images/tableTennis.jpg',
-    'javascript/products.js',
-    
+    '/robotics.png',
+    '/gymnastics.png',
+    '/athletics.png',
+    '/chess.png',
+    '/karate.png',
+    '/swimming.png',
+    '/volleyball.png',
+    '/football.png',
+    '/tennis.png',
+    '/archery.png',
+    'AfterSchoolActivities.webmanifest' // Add the webmanifest file
 ];
 
 self.addEventListener('install', (e) => {
@@ -28,24 +50,13 @@ self.addEventListener('install', (e) => {
     );
 });
 
-// self.addEventListener('fetch', function (e) {
-//     e.respondWith(
-//         // check if the cache has the file
-//         caches.match(e.request).then(function (r) {
-//             console.log('[Service Worker] Fetching resource: ' + e.request.url);
-//             // 'r' is the matching file if it exists in the cache
-//             return r 
-//         })
-//     );
-// });
-
-self.addEventListener('fetch', function (e) {
+self.addEventListener('fetch', (e) => {
     e.respondWith(
-        caches.match(e.request).then(function (r) {
-            // Download the file if it is not in the cache, 
-            return r || fetch(e.request).then(function (response) {
+        caches.match(e.request).then((r) => {
+            // Download the file if it is not in the cache
+            return r || fetch(e.request).then((response) => {
                 // add the new file to cache
-                return caches.open(cacheName).then(function (cache) {
+                return caches.open(cacheName).then((cache) => {
                     cache.put(e.request, response.clone());
                     return response;
                 });

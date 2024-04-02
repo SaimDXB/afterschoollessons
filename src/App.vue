@@ -5,7 +5,7 @@
     <button @click="toggleCheckout" class="cart-btn">
       Cart <span v-if="cart.length">({{ cart.length }})</span>
     </button>
-    <button v-if="showInstallPrompt" @click="installApp" class="install-btn">Install App</button>
+    <button @click="installApp" class="install-btn">Install</button>
     <button v-if="showCheckout" @click="goToHome" class="home-btn">Home</button>
   </div>
 </template>
@@ -26,8 +26,7 @@ export default {
       cart: [],
       showCheckout: false,
       apiUrl: 'http://localhost:3000/api/',
-      showInstallPrompt: false,
-      deferredPrompt: null
+      deferredPrompt: null // Initialize deferredPrompt here
     }
   },
   methods: {
@@ -39,11 +38,8 @@ export default {
     removeFromCart(lessonId) {
       const index = this.cart.findIndex(lesson => lesson._id === lessonId);
       if (index !== -1) {
-        // Get the lesson object being removed
         const removedLesson = this.cart[index];
-        // Update spaces by adding back the spaces from the removed lesson
         this.updateLessonSpaces(lessonId, removedLesson.spaces);
-        // Remove the lesson from the cart
         this.cart.splice(index, 1);
       }
     },
@@ -78,70 +74,59 @@ export default {
       }
     },
     async placeOrder(order) {
-  if (!order.name.trim().match(/^[A-Za-z]+$/) || !order.phone.trim().match(/^[0-9]+$/)) {
-    alert('Please enter a valid name (alphabets only) and phone number (numbers only).');
-    return;
-  }
-  try {
-    const response = await fetch(`${this.apiUrl}orders/place`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: order.name,
-        phone: order.phone,
-        lessonIds: this.cart.map(lesson => lesson._id),
-      }),
-    });
-    const responseData = await response.json();
-    if (response.ok) {
-      this.cart = []; // Clear cart on successful order
-      this.showCheckout = false; // Hide checkout after successful order
-      alert('Order placed successfully!');
-      window.location.reload(); // Refresh the page
-    } else {
-      console.error('Failed to place order:', responseData.error);
-      alert('There was an error placing the order.');
-    }
-  } catch (error) {
-    console.error('Error placing order:', error);
-    alert('There was an error placing the order.');
-  }
-},
-
+      if (!order.name.trim().match(/^[A-Za-z]+$/) || !order.phone.trim().match(/^[0-9]+$/)) {
+        alert('Please enter a valid name (alphabets only) and phone number (numbers only).');
+        return;
+      }
+      try {
+        const response = await fetch(`${this.apiUrl}orders/place`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: order.name,
+            phone: order.phone,
+            lessonIds: this.cart.map(lesson => lesson._id),
+          }),
+        });
+        const responseData = await response.json();
+        if (response.ok) {
+          this.cart = [];
+          this.showCheckout = false;
+          alert('Order placed successfully!');
+          window.location.reload();
+        } else {
+          console.error('Failed to place order:', responseData.error);
+          alert('There was an error placing the order.');
+        }
+      } catch (error) {
+        console.error('Error placing order:', error);
+        alert('There was an error placing the order.');
+      }
+    },
     goToHome() {
       this.showCheckout = false;
-      window.location.reload(); // Refresh the page
+      window.location.reload();
     },
     installApp() {
       if (this.deferredPrompt) {
-        // Show the install prompt
         this.deferredPrompt.prompt();
-        // Wait for the user to respond
         this.deferredPrompt.userChoice.then(choiceResult => {
           if (choiceResult.outcome === 'accepted') {
             console.log('User accepted the install prompt');
           } else {
             console.log('User dismissed the install prompt');
           }
-          // Reset the install prompt state
-          this.deferredPrompt = null;
-          this.showInstallPrompt = false;
+          // Reset the deferredPrompt variable
+          this.deferredPrompt = null; // Update the value in the component's data
         });
       }
     }
   },
   mounted() {
+    // Remove event.preventDefault() from here
     this.fetchLessons();
-    window.addEventListener('beforeinstallprompt', event => {
-      // Prevent the default install prompt
-      event.preventDefault();
-      // Store the event for later use
-      this.deferredPrompt = event;
-      // Show a custom install prompt
-      this.showInstallPrompt = true;
-    });
   }
 }
 </script>

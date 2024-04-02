@@ -3,7 +3,7 @@
     "short_name": "Edventures",
     "icons":[
         {
-            "src": "images/logo.png",
+            "src": "logo.png",
             "sizes": "512x512",
             "type": "images/png"
         }
