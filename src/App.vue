@@ -7,6 +7,9 @@
     </button>
     <button @click="installApp" class="install-btn">Install</button>
     <button v-if="showCheckout" @click="goToHome" class="home-btn">Home</button>
+    <div v-if="cart.length">
+      <h2>Cart Total: ${{ calculateTotalPrice() }}</h2>
+    </div>
   </div>
 </template>
 
@@ -32,6 +35,8 @@ export default {
   methods: {
     addToCart(lesson) {
       if (lesson.spaces > 0) {
+        // Add price property to lesson object
+        lesson.price = lesson.price || 0; // Set default price if not available
         this.cart.push(lesson);
       }
     },
@@ -122,10 +127,25 @@ export default {
           this.deferredPrompt = null; // Update the value in the component's data
         });
       }
+    },
+    calculateTotalPrice() {
+      return this.cart.reduce((total, lesson) => {
+        return total + lesson.price;
+      }, 0).toFixed(2);
     }
   },
   mounted() {
-    // Remove event.preventDefault() from here
+    // Attach event listener for beforeinstallprompt event
+    window.addEventListener('beforeinstallprompt', (event) => {
+      // Prevent the default behavior
+      event.preventDefault();
+      
+      // Store the event for later use
+      this.deferredPrompt = event;
+      console.log('beforeinstallprompt event triggered');
+    });
+    
+    // Fetch lessons when the component is mounted
     this.fetchLessons();
   }
 }

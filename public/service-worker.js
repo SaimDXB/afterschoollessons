@@ -1,8 +1,6 @@
-let deferredPrompt;
-
 self.addEventListener('beforeinstallprompt', (e) => {
     // Stash the event so it can be triggered later
-    deferredPrompt = e;
+    let deferredPrompt = e;
     // Update UI to notify the user they can add to home screen
     showInstallPromotion();
 });
