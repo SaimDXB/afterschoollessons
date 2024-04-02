@@ -5,6 +5,8 @@
     <button @click="toggleCheckout" class="cart-btn">
       Cart <span v-if="cart.length">({{ cart.length }})</span>
     </button>
+    <button v-if="showInstallPrompt" @click="installApp" class="install-btn">Install App</button>
+    <button v-if="showCheckout" @click="goToHome" class="home-btn">Home</button>
   </div>
 </template>
 
@@ -23,21 +25,26 @@ export default {
       lessons: [],
       cart: [],
       showCheckout: false,
-      apiUrl: 'http://localhost:3000/api/'
+      apiUrl: 'http://localhost:3000/api/',
+      showInstallPrompt: false,
+      deferredPrompt: null
     }
   },
   methods: {
     addToCart(lesson) {
       if (lesson.spaces > 0) {
         this.cart.push(lesson);
-        lesson.spaces--; // Update spaces locally
       }
     },
     removeFromCart(lessonId) {
       const index = this.cart.findIndex(lesson => lesson._id === lessonId);
       if (index !== -1) {
+        // Get the lesson object being removed
+        const removedLesson = this.cart[index];
+        // Update spaces by adding back the spaces from the removed lesson
+        this.updateLessonSpaces(lessonId, removedLesson.spaces);
+        // Remove the lesson from the cart
         this.cart.splice(index, 1);
-        this.updateLessonSpaces(lessonId, 1); // Increase spaces when removing from cart
       }
     },
     toggleCheckout() {
@@ -71,6 +78,10 @@ export default {
       }
     },
     async placeOrder(order) {
+  if (!order.name.trim().match(/^[A-Za-z]+$/) || !order.phone.trim().match(/^[0-9]+$/)) {
+    alert('Please enter a valid name (alphabets only) and phone number (numbers only).');
+    return;
+  }
   try {
     const response = await fetch(`${this.apiUrl}orders/place`, {
       method: 'POST',
@@ -88,6 +99,7 @@ export default {
       this.cart = []; // Clear cart on successful order
       this.showCheckout = false; // Hide checkout after successful order
       alert('Order placed successfully!');
+      window.location.reload(); // Refresh the page
     } else {
       console.error('Failed to place order:', responseData.error);
       alert('There was an error placing the order.');
@@ -96,10 +108,40 @@ export default {
     console.error('Error placing order:', error);
     alert('There was an error placing the order.');
   }
-}
+},
+
+    goToHome() {
+      this.showCheckout = false;
+      window.location.reload(); // Refresh the page
+    },
+    installApp() {
+      if (this.deferredPrompt) {
+        // Show the install prompt
+        this.deferredPrompt.prompt();
+        // Wait for the user to respond
+        this.deferredPrompt.userChoice.then(choiceResult => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+          } else {
+            console.log('User dismissed the install prompt');
+          }
+          // Reset the install prompt state
+          this.deferredPrompt = null;
+          this.showInstallPrompt = false;
+        });
+      }
+    }
   },
   mounted() {
     this.fetchLessons();
+    window.addEventListener('beforeinstallprompt', event => {
+      // Prevent the default install prompt
+      event.preventDefault();
+      // Store the event for later use
+      this.deferredPrompt = event;
+      // Show a custom install prompt
+      this.showInstallPrompt = true;
+    });
   }
 }
 </script>
@@ -128,5 +170,37 @@ export default {
 
 .cart-btn:hover {
   background-color: #0056b3;
+}
+
+.install-btn {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.install-btn:hover {
+  background-color: #218838;
+}
+
+.home-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.home-btn:hover {
+  background-color: #bd2130;
 }
 </style>
