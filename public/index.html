@@ -1,17 +1,25 @@
 <!DOCTYPE html>
 <html lang="">
-  <head>
+<head>
+    <link rel="manifest" href="./AfterSchoolActivites.webmanifest">
+    <!-- Set character encoding -->
     <meta charset="utf-8">
+    <!-- Ensure proper rendering and touch zooming on mobile devices -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Set the viewport width and initial-scale for responsive design -->
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!-- Link to the favicon -->
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <!-- Set the title of the webpage -->
     <title><%= htmlWebpackPlugin.options.title %></title>
-  </head>
-  <body>
+</head>
+<body>
+    <!-- Display message if JavaScript is not enabled -->
     <noscript>
-      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+        <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
+    <!-- Root element for Vue.js application -->
     <div id="app"></div>
-    <!-- built files will be auto injected -->
-  </body>
+    <!-- Built files will be injected here -->
+</body>
 </html>

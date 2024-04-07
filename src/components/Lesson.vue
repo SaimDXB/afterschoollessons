@@ -1,7 +1,9 @@
 <template>
+  <!-- Root element of the LessonList component -->
   <div class="lesson-list">
-    <!-- Move the sorting and search controls above the lessons -->
+    <!-- Container for sorting and search controls -->
     <div class="sort-container">
+      <!-- Dropdown for sorting lessons -->
       <label>Sort by:</label>
       <select v-model="sortBy" @change="sortLessons">
         <option value="subject">Subject</option>
@@ -10,18 +12,22 @@
         <option value="spaces">Spaces</option>
       </select>
 
+      <!-- Dropdown for sorting order -->
       <label>Order:</label>
       <select v-model="sortOrder" @change="sortLessons">
         <option value="asc">Ascending</option>
         <option value="desc">Descending</option>
       </select>
 
+      <!-- Search input for filtering lessons -->
       <label>Search:</label>
       <input type="text" v-model="searchQuery" @input="searchLessons" placeholder="Search lessons...">
     </div>
 
+    <!-- Display message if no results found -->
     <div v-if="filteredLessons.length === 0" class="no-results">No results found.</div>
 
+    <!-- Iterate over filtered lessons and display each lesson -->
     <div v-for="lesson in filteredLessons" :key="lesson._id" class="lesson-item">
       <h3>{{ lesson.subject }}</h3>
       <p>Location: {{ lesson.location }}</p>
@@ -35,34 +41,36 @@
 </template>
 
 <script>
+// Exporting the LessonList component
 export default {
+  // Name of the component
   name: 'LessonList',
+  // Props received by the component
   props: ['lessons'],
+  // Data properties of the component
   data() {
     return {
+      // Initial sort by subject and ascending order
       sortBy: 'subject',
       sortOrder: 'asc',
+      // Search query string
       searchQuery: ''
     };
   },
+  // Computed properties for filtered lessons
   computed: {
     filteredLessons() {
+      // Start with all lessons
       let filtered = this.lessons;
 
-      // Sort lessons
+      // Sort lessons based on selected criteria
       filtered.sort((a, b) => {
+        // Sort by price or spaces
         if (this.sortBy === 'price' || this.sortBy === 'spaces') {
-          if (this.sortOrder === 'asc') {
-            return a[this.sortBy] - b[this.sortBy];
-          } else {
-            return b[this.sortBy] - a[this.sortBy];
-          }
+          return (this.sortOrder === 'asc') ? a[this.sortBy] - b[this.sortBy] : b[this.sortBy] - a[this.sortBy];
         } else {
-          if (this.sortOrder === 'asc') {
-            return a[this.sortBy].localeCompare(b[this.sortBy]);
-          } else {
-            return b[this.sortBy].localeCompare(a[this.sortBy]);
-          }
+          // Sort alphabetically
+          return (this.sortOrder === 'asc') ? a[this.sortBy].localeCompare(b[this.sortBy]) : b[this.sortBy].localeCompare(a[this.sortBy]);
         }
       });
 
@@ -78,15 +86,19 @@ export default {
       return filtered;
     }
   },
+  // Methods used by the component
   methods: {
+    // Method to add a lesson to the cart
     addToCart(lesson) {
       if (lesson.spaces > 0) {
         this.$emit('add-to-cart', lesson);
       }
     },
+    // Method to handle sorting of lessons
     sortLessons() {
       // Sorting is handled in computed property
     },
+    // Method to handle searching of lessons
     searchLessons() {
       // Searching is handled in computed property
     }
@@ -95,12 +107,13 @@ export default {
 </script>
 
 <style scoped>
+/* Scoped CSS styles for the LessonList component */
 .lesson-list {
-  margin-top: 20px; /* Added margin to match website layout */
+  margin-top: 20px;
 }
 
 .sort-container {
-  margin-bottom: 20px; /* Increased margin for better separation */
+  margin-bottom: 20px;
 }
 
 .lesson-item {
@@ -109,7 +122,7 @@ export default {
   padding: 10px;
   margin: 10px;
   width: 200px;
-  display: inline-block; /* Adjusted to display lessons side by side */
+  display: inline-block;
 }
 
 .lesson-image {
